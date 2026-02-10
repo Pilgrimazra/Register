@@ -1,219 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>De Elite Computer | Laptop Registration</title>
-
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAFsuQYphGi7toy_dAwaYgWewfX9eRoERY",
-  authDomain: "de-elite-receipts.firebaseapp.com",
-  projectId: "de-elite-receipts",
-  storageBucket: "de-elite-receipts.firebasestorage.app",
-  messagingSenderId: "621967927342",
-  appId: "1:621967927342:web:9b3bf55d67e56356eb57bf"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.saveToFirebase = async function(data) {
-  await addDoc(collection(db, "registrations"), data);
-};
-</script>
-
-<style>
-body {
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  background: linear-gradient(135deg, #e6f7e6, #f4fff4);
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.container {
-  background: #fff;
-  width: 420px;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.header h1 {
-  margin: 0;
-  color: #1f7a1f;
-}
-
-.header p {
-  margin: 5px 0 0;
-  color: #555;
-  font-size: 14px;
-}
-
-label {
-  font-weight: 600;
-  margin-top: 12px;
-  display: block;
-}
-
-input[type="text"] {
-  width: 100%;
-  padding: 9px;
-  margin-top: 5px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.section-title {
-  margin-top: 20px;
-  font-weight: bold;
-  color: #1f7a1f;
-}
-
-.part {
-  margin-top: 10px;
-}
-
-.part-options {
-  margin-left: 20px;
-  font-size: 14px;
-}
-
-.fee {
-  background: #f1fff1;
-  border: 1px solid #cce5cc;
-  padding: 10px;
-  margin-top: 20px;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 6px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 20px;
-  background: #28a745;
-  color: #fff;
-  font-size: 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #218838;
-}
-
-.success {
-  margin-top: 15px;
-  color: #1f7a1f;
-  font-weight: bold;
-  text-align: center;
-}
-</style>
-</head>
-
-<body>
-<div class="container">
-
-  <div class="header">
-    <h1>De Elite Computer</h1>
-    <p>Laptop Registration Form</p>
-  </div>
-
-  <form id="registrationForm">
-    <label>Owner's Name</label>
-    <input type="text" id="name" required>
-
-    <label>Laptop Model</label>
-    <input type="text" id="model" required>
-
-    <label>Phone Number</label>
-    <input type="text" id="phone" required>
-
-    <div class="section-title">Included Computer Parts</div>
-
-    <div class="part">
-      <input type="checkbox" id="ram"> RAM
-      <div class="part-options">
-        <input type="radio" name="ram_size" value="4GB"> 4GB
-        <input type="radio" name="ram_size" value="8GB"> 8GB
-        <input type="radio" name="ram_size" value="16GB"> 16GB
-      </div>
-    </div>
-
-    <div class="part">
-      <input type="checkbox" id="ssd"> SSD
-      <div class="part-options">
-        <input type="radio" name="ssd_size" value="256GB"> 256GB
-        <input type="radio" name="ssd_size" value="512GB"> 512GB
-        <input type="radio" name="ssd_size" value="1TB"> 1TB
-      </div>
-    </div>
-
-    <div class="part">
-      <input type="checkbox" id="hdd"> HDD
-      <div class="part-options">
-        <input type="radio" name="hdd_size" value="500GB"> 500GB
-        <input type="radio" name="hdd_size" value="1TB"> 1TB
-        <input type="radio" name="hdd_size" value="2TB"> 2TB
-      </div>
-    </div>
-
-    <div class="fee">Registration Fee: ₦5,000</div>
-
-    <button type="submit">Submit Registration</button>
-  </form>
-
-  <div id="successMsg" class="success" style="display:none;">
-    Registration saved successfully ✔
-  </div>
-
-</div>
-
 <script>
-document.getElementById("registrationForm").addEventListener("submit", async (e) => {
+const form = document.getElementById("registrationForm");
+const messageBox = document.getElementById("formMessage");
+const submitBtn = document.getElementById("submitBtn");
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const receiptId = "DE-" + Date.now();
-  const now = new Date();
+  // Reset message
+  messageBox.textContent = "";
+  messageBox.style.color = "#000";
+
+  // Disable button
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Saving...";
+
+  // Get inputs safely
+  const nameInput = document.getElementById("name").value.trim();
+  const modelInput = document.getElementById("model").value.trim();
+  const phoneInput = document.getElementById("phone").value.trim();
+  const ram = document.getElementById("ram");
+  const ssd = document.getElementById("ssd");
+  const hdd = document.getElementById("hdd");
+
+  /* -------- Validation -------- */
+  if (!nameInput || !modelInput || !phoneInput) {
+    messageBox.textContent = "Please fill in all required fields.";
+    messageBox.style.color = "red";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Registration";
+    return;
+  }
 
   const parts = [];
-  if (ram.checked) parts.push("RAM " + (document.querySelector('input[name="ram_size"]:checked')?.value || ""));
-  if (ssd.checked) parts.push("SSD " + (document.querySelector('input[name="ssd_size"]:checked')?.value || ""));
-  if (hdd.checked) parts.push("HDD " + (document.querySelector('input[name="hdd_size"]:checked')?.value || ""));
 
+  if (ram.checked) {
+    const ramSize = document.querySelector('input[name="ram_size"]:checked');
+    if (!ramSize) {
+      messageBox.textContent = "Please select RAM size.";
+      messageBox.style.color = "red";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Registration";
+      return;
+    }
+    parts.push("RAM " + ramSize.value);
+  }
+
+  if (ssd.checked) {
+    const ssdSize = document.querySelector('input[name="ssd_size"]:checked');
+    if (!ssdSize) {
+      messageBox.textContent = "Please select SSD size.";
+      messageBox.style.color = "red";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Registration";
+      return;
+    }
+    parts.push("SSD " + ssdSize.value);
+  }
+
+  if (hdd.checked) {
+    const hddSize = document.querySelector('input[name="hdd_size"]:checked');
+    if (!hddSize) {
+      messageBox.textContent = "Please select HDD size.";
+      messageBox.style.color = "red";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Registration";
+      return;
+    }
+    parts.push("HDD " + hddSize.value);
+  }
+
+  /* -------- Data Object -------- */
+  const now = new Date();
   const data = {
-    receiptId,
-    owner: name.value,
-    model: model.value,
-    phone: phone.value,
-    parts,
+    receiptId: "DE-" + now.getTime(),
+    owner: nameInput,
+    model: modelInput,
+    phone: phoneInput,
+    parts: parts,
     registrationFee: 5000,
     date: now.toLocaleDateString(),
     time: now.toLocaleTimeString(),
-    createdAt: new Date()
+    createdAt: now
   };
 
-  await window.saveToFirebase(data);
+  /* -------- Firebase Save -------- */
+  try {
+    await window.saveToFirebase(data);
 
-  document.getElementById("successMsg").style.display = "block";
-  e.target.reset();
+    messageBox.textContent = "✔ Registration saved successfully!";
+    messageBox.style.color = "green";
+
+    form.reset();
+  } catch (error) {
+    messageBox.textContent = "❌ Failed to save. Please try again.";
+    messageBox.style.color = "red";
+    console.error(error);
+  }
+
+  // Restore button
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Submit Registration";
 });
 </script>
-
-</body>
-</html>
