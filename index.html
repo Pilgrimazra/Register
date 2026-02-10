@@ -1,104 +1,95 @@
-<script>
-const form = document.getElementById("registrationForm");
-const messageBox = document.getElementById("formMessage");
-const submitBtn = document.getElementById("submitBtn");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>De Elite Laptop Registration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  <div class="bg-white shadow-xl rounded-2xl w-full max-w-lg p-10 border-t-4 border-indigo-700 relative">
+    <h2 class="text-4xl font-bold mb-4 text-center text-indigo-800">De Elite Computer</h2>
 
-  // Reset message
-  messageBox.textContent = "";
-  messageBox.style.color = "#000";
+    <img src="ABCD.jpg" alt="De Elite Logo" class="mx-auto mb-6 w-28 h-28 object-contain">
 
-  // Disable button
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Saving...";
+    <!-- Contact Info -->
+    <p class="text-center text-gray-600 mb-6">
+      Contact: <span class="font-semibold">08059156884</span> | Email: <span class="font-semibold">uche8221@gmail.com</span>
+    </p>
 
-  // Get inputs safely
-  const nameInput = document.getElementById("name").value.trim();
-  const modelInput = document.getElementById("model").value.trim();
-  const phoneInput = document.getElementById("phone").value.trim();
-  const ram = document.getElementById("ram");
-  const ssd = document.getElementById("ssd");
-  const hdd = document.getElementById("hdd");
+    <!-- Registration Form -->
+    <input id="fullName" class="w-full p-4 mb-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500" placeholder="Full Name">
+    <input id="phoneNumber" class="w-full p-4 mb-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500" placeholder="Phone Number" type="tel">
+    <input id="laptopModel" class="w-full p-4 mb-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500" placeholder="Laptop Model">
 
-  /* -------- Validation -------- */
-  if (!nameInput || !modelInput || !phoneInput) {
-    messageBox.textContent = "Please fill in all required fields.";
-    messageBox.style.color = "red";
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit Registration";
-    return;
-  }
+    <!-- RAM size -->
+    <select id="ramSize" class="w-full p-4 mb-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500">
+      <option value="" disabled selected>Select RAM Size</option>
+      <option value="4GB">4GB</option>
+      <option value="8GB">8GB</option>
+      <option value="16GB">16GB</option>
+    </select>
 
-  const parts = [];
+    <!-- SSD size -->
+    <select id="ssdSize" class="w-full p-4 mb-6 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500">
+      <option value="" disabled selected>Select SSD Size</option>
+      <option value="256GB">256GB</option>
+      <option value="512GB">512GB</option>
+      <option value="1TB">1TB</option>
+    </select>
 
-  if (ram.checked) {
-    const ramSize = document.querySelector('input[name="ram_size"]:checked');
-    if (!ramSize) {
-      messageBox.textContent = "Please select RAM size.";
-      messageBox.style.color = "red";
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Registration";
-      return;
-    }
-    parts.push("RAM " + ramSize.value);
-  }
+    <!-- Submit Button -->
+    <button id="submitBtn" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-bold py-4 rounded-xl hover:scale-105 transition-transform shadow-lg">
+      Register Laptop
+    </button>
+  </div>
 
-  if (ssd.checked) {
-    const ssdSize = document.querySelector('input[name="ssd_size"]:checked');
-    if (!ssdSize) {
-      messageBox.textContent = "Please select SSD size.";
-      messageBox.style.color = "red";
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Registration";
-      return;
-    }
-    parts.push("SSD " + ssdSize.value);
-  }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, addDoc, collection, serverTimestamp } 
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  if (hdd.checked) {
-    const hddSize = document.querySelector('input[name="hdd_size"]:checked');
-    if (!hddSize) {
-      messageBox.textContent = "Please select HDD size.";
-      messageBox.style.color = "red";
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Registration";
-      return;
-    }
-    parts.push("HDD " + hddSize.value);
-  }
+    const firebaseConfig = {
+      apiKey: "AIzaSyAFsuQYphGi7toy_dAwaYgWewfX9eRoERY",
+      authDomain: "de-elite-receipts.firebaseapp.com",
+      projectId: "de-elite-receipts",
+      storageBucket: "de-elite-receipts.firebasestorage.app",
+      messagingSenderId: "621967927342",
+      appId: "1:621967927342:web:9b3bf55d67e56356eb57bf"
+    };
 
-  /* -------- Data Object -------- */
-  const now = new Date();
-  const data = {
-    receiptId: "DE-" + now.getTime(),
-    owner: nameInput,
-    model: modelInput,
-    phone: phoneInput,
-    parts: parts,
-    registrationFee: 5000,
-    date: now.toLocaleDateString(),
-    time: now.toLocaleTimeString(),
-    createdAt: now
-  };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  /* -------- Firebase Save -------- */
-  try {
-    await window.saveToFirebase(data);
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const fullName = document.getElementById("fullName").value.trim();
+      const phoneNumber = document.getElementById("phoneNumber").value.trim();
+      const laptopModel = document.getElementById("laptopModel").value.trim();
+      const ramSize = document.getElementById("ramSize").value;
+      const ssdSize = document.getElementById("ssdSize").value;
 
-    messageBox.textContent = "✔ Registration saved successfully!";
-    messageBox.style.color = "green";
+      if (!fullName || !phoneNumber || !laptopModel || !ramSize || !ssdSize) {
+        alert("❌ Please fill in all fields!");
+        return;
+      }
 
-    form.reset();
-  } catch (error) {
-    messageBox.textContent = "❌ Failed to save. Please try again.";
-    messageBox.style.color = "red";
-    console.error(error);
-  }
+      try {
+        const data = { fullName, phoneNumber, laptopModel, ramSize, ssdSize, createdAt: serverTimestamp() };
+        await addDoc(collection(db, "registrations"), data);
+      alert("✅ Laptop registration successful!\n\nYou can proceed in making payment to the account by [4251557937 : ZENITH BANK; OGBONNA VICTOR UCHE].");
 
-  // Restore button
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Submit Registration";
-});
-</script>
+        document.getElementById("fullName").value = "";
+        document.getElementById("phoneNumber").value = "";
+        document.getElementById("laptopModel").value = "";
+        document.getElementById("ramSize").selectedIndex = 0;
+        document.getElementById("ssdSize").selectedIndex = 0;
+
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error saving registration. Please try again.");
+      }
+    });
+  </script>
+
+</body>
+</html>
