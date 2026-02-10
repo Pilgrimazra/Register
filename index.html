@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laptop Registration</title>
+<!-- jsPDF CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Firebase SDKs -->
+<script type="module">
+  // Import Firebase functions
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+
+  // Your Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFsuQYphGi7toy_dAwaYgWewfX9eRoERY",
+    authDomain: "de-elite-receipts.firebaseapp.com",
+    projectId: "de-elite-receipts",
+    storageBucket: "de-elite-receipts.firebasestorage.app",
+    messagingSenderId: "621967927342",
+    appId: "1:621967927342:web:9b3bf55d67e56356eb57bf"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.saveToFirebase = async function(data) {
+    try {
+      const docRef = await addDoc(collection(db, "registrations"), data);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
+</script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #e6f7e6;
+  color: #004d00;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.container {
+  background-color: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  width: 400px;
+}
+h1 { text-align: center; margin-bottom: 20px; }
+label, input, button, strong { display: block; margin: 8px 0; }
+input[type="checkbox"], input[type="radio"] { display: inline-block; margin-right: 5px; }
+button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-weight: bold;
+  width: 100%;
+}
+button:hover { background-color: #218838; }
+#receipt {
+  margin-top: 20px;
+  background-color: #f9fff9;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #cce5cc;
+}
+#receipt button { width: auto; margin-top: 10px; }
+.fee { font-weight: bold; margin-top: 10px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>De Elite Computer</h1>
+  <h5> Registration Form</h5>
+  <form id="registrationForm">
+    <label>Owner's Name:</label>
+    <input type="text" id="name" required>
+
+    <label>Laptop Model:</label>
+    <input type="text" id="model" required>
+
+    <label>Phone Number</label>
+    <input type="text" id="serial" required>
+
+    <strong>Included Computer Parts:</strong><br>
+
+    <!-- RAM -->
+    <input type="checkbox" id="ram" name="parts" value="RAM">
+    <label for="ram"><strong>RAM</strong></label>
+    <input type="radio" name="ram_size" value="4GB"> 4GB
+    <input type="radio" name="ram_size" value="8GB"> 8GB
+    <input type="radio" name="ram_size" value="16GB"> 16GB
+    <br><br>
+
+    <!-- SSD -->
+    <input type="checkbox" id="ssd" name="parts" value="SSD">
+    <label for="ssd"><strong>SSD</strong></label>
+    <input type="radio" name="ssd_size" value="256GB"> 256GB
+    <input type="radio" name="ssd_size" value="512GB"> 512GB
+    <input type="radio" name="ssd_size" value="1TB"> 1TB
+    <br><br>
+
+    <!-- HDD -->
+    <input type="checkbox" id="hdd" name="parts" value="HDD">
+    <label for="hdd"><strong>HDD</strong></label>
+    <input type="radio" name="hdd_size" value="500GB"> 500GB
+    <input type="radio" name="hdd_size" value="1TB"> 1TB
+    <input type="radio" name="hdd_size" value="2TB"> 2TB
+    <br><br>
+
+    <div class="fee">Registration Fee: 5000</div>
+    <button type="submit">Register Laptop & Generate PDF</button>
+  </form>
+
+  <div id="receipt" style="display:none;">
+    <h2>Registration Receipt</h2>
+    <p id="receiptDetails"></p>
+    <button onclick="generatePDF()">Download PDF</button>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('registrationForm');
+
+form.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const owner = document.getElementById('name').value;
+  const model = document.getElementById('model').value;
+  const phone = document.getElementById('serial').value;
+
+  const parts = [];
+  if(document.getElementById('ram').checked){
+    parts.push(`RAM: ${document.querySelector('input[name="ram_size"]:checked')?.value || ''}`);
+  }
+  if(document.getElementById('ssd').checked){
+    parts.push(`SSD: ${document.querySelector('input[name="ssd_size"]:checked')?.value || ''}`);
+  }
+  if(document.getElementById('hdd').checked){
+    parts.push(`HDD: ${document.querySelector('input[name="hdd_size"]:checked')?.value || ''}`);
+  }
+
+  const registrationFee = 5000;
+
+  const receiptText = `
+Owner: ${owner}
+Laptop Model: ${model}
+Phone Number: ${phone}
+Parts Included:
+- ${parts.join("\n- ")}
+Registration Fee: ${registrationFee}
+`;
+
+  document.getElementById('receiptDetails').innerText = receiptText;
+  document.getElementById('receipt').style.display = 'block';
+
+  // Save to Firebase
+  const data = { owner, model, phone, parts, registrationFee, timestamp: new Date() };
+  window.saveToFirebase(data);
+});
+
+// PDF generation
+function generatePDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const receiptText = document.getElementById('receiptDetails').innerText;
+  doc.setFontSize(12);
+  doc.text(receiptText, 10, 20);
+  doc.save('Laptop_Registration_Receipt.pdf');
+}
+</script>
+</body>
+</html>
