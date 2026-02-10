@@ -1,5 +1,32 @@
-<!DOCTYPE html>
+git <!DOCTYPE html>
 <html lang="en">
+  <script type="module">
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAFsuQYphGi7toy_dAwaYgWewfX9eRoERY",
+  authDomain: "de-elite-receipts.firebaseapp.com",
+  projectId: "de-elite-receipts",
+  storageBucket: "de-elite-receipts.firebasestorage.app",
+  messagingSenderId: "621967927342",
+  appId: "1:621967927342:web:9b3bf55d67e56356eb57bf"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize Firestore
+const db = getFirestore(app);
+
+// Make function available to normal JS
+window.saveToFirebase = async function (data) {
+  const docRef = await addDoc(collection(db, "registrations"), data);
+  console.log("Saved with ID:", docRef.id);
+};
+</script>
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
