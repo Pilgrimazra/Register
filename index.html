@@ -14,7 +14,7 @@
 
     <!-- Contact Info -->
     <p class="text-center text-gray-600 mb-6">
-      Contact: <span class="font-semibold">08059156884</span> | Email: <span class="font-semibold">uche8221@gmail.com</span>
+      Contact: <span class="font-semibold">07067563720, 08059156884</span> | Email: <span class="font-semibold">uche8221@gmail.com</span>
     </p>
 
     <!-- Registration Form -->
@@ -76,7 +76,13 @@
       try {
         const data = { fullName, phoneNumber, laptopModel, ramSize, ssdSize, createdAt: serverTimestamp() };
         await addDoc(collection(db, "registrations"), data);
-      alert("✅ Laptop registration successful!\n\nYou can proceed in making payment to the account by [4251557937 : ZENITH BANK; OGBONNA VICTOR UCHE].");
+      //alert("✅ Laptop registration successful!\n\nYou can proceed in making payment to the account by [4251557937 : ZENITH BANK; OGBONNA VICTOR UCHE].");
+
+      alert(
+  "✅ Laptop registration successful!\n\n" +
+  "Please note: A non-refundable registration fee of ₦5,000 applies.\n\n" +
+  "You can proceed in making payment to the account by [ ZENITH BANK; 4251557937 :  OGBONNA VICTOR UCHE]."
+);
 
         document.getElementById("fullName").value = "";
         document.getElementById("phoneNumber").value = "";
